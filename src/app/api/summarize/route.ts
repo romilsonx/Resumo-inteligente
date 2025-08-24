@@ -1,3 +1,4 @@
+// Forçando novo deploy na Vercel
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 
