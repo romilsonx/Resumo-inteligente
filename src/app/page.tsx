@@ -106,8 +106,13 @@ export default function Home() {
       setResults(data);
       recordUsage(); // Registra o uso apenas em caso de sucesso
 
-    } catch (err: any) {
-      setError(err.message || 'Ocorreu um erro ao gerar o resumo. Tente novamente.');
+    } catch (err) {
+      let errorMessage = 'Ocorreu um erro ao gerar o resumo. Tente novamente.';
+      if (err instanceof Error) {
+        // Now it's safe to access err.message
+        errorMessage = err.message;
+      }
+      setError(errorMessage);
       console.error(err);
     } finally {
       setLoading(false);
