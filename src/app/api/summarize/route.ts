@@ -27,8 +27,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Text is required and must be a string' }, { status: 400 });
     }
 
-    // Seleciona o modelo de IA a ser usado. 'gemini-1.5-flash' é um modelo rápido e eficiente.
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    // Configurações de segurança para instruir a IA a bloquear conteúdo potencialmente prejudicial.
+    const safetySettings = [
+        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+    ];
+
+    // Seleciona o modelo de IA a ser usado e aplica as configurações de segurança na inicialização.
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', safetySettings });
 
     // --- Engenharia de Prompt ---
     // O prompt é a instrução enviada para a IA. É cuidadosamente construído para:
@@ -53,16 +61,8 @@ export async function POST(request: Request) {
       Retorne apenas o objeto JSON.
     `;
 
-    // Configurações de segurança para instruir a IA a bloquear conteúdo potencialmente prejudicial.
-    const safetySettings = [
-        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-    ];
-
     // Envia o prompt para o modelo da IA e aguarda a resposta.
-    const result = await model.generateContent(prompt, { safetySettings });
+    const result = await model.generateContent(prompt);
     const response = result.response;
     const responseText = response.text();
 
